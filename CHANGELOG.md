@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-05-03
+
+### Added
+
+- `vectimus-secrets-005` (via canonical policies 2.3.0): blocks `ln -s` symlink creation pointing at `.env`, `.aws/`, `.ssh/`, `.pem`, `.key`, `/secrets/`, `credentials.*`, `.npmrc`. Closes the symlink-evasion bypass reported in #38.
+- Normaliser detects `ln -s|--symbolic <target> <link>` (including combined flags `-sf`, `-fs`) and reclassifies the action as `file_read` against the target so existing `secrets-001/002/003` read policies fire on the bypass attempt — defense in depth even if `secrets-005` is disabled.
+
+### Changed
+
+- Release workflow (`.github/workflows/release.yml`) now pulls policies from canonical `vectimus/policies@main` via `actions/checkout` + `rsync --delete` before `python -m build`. Stops the vendored/canonical drift that was hiding policy updates from PyPI consumers (e.g. `vectimus-fileint-013`, codex-CLI policies, `destops` → `destruct` rename). Tracks `main` rather than a pinned tag, so the next vectimus release always ships the latest reviewed policies.
+
+### Fixed
+
+- Vendored policies that had drifted from canonical now ship correctly: `vectimus-fileint-013` (SANDWORM_MODE XDG config protection), codex CLI hook + config protections, `destops` → `destruct` rule prefix alignment.
+
+## [0.21.0] - 2026-04-13
+
+### Added
+
+- Experimental Codex CLI hook support: Bash shell commands governed via `PreToolUse` hooks. File and MCP coverage limited by Codex upstream. Windows unsupported.
+- `vectimus init`, `remove`, `status` and MCP discovery now include Codex CLI
+- Cedar policies protect `.codex/hooks.json` and `.codex/config.toml` from agent tampering
+
+### Changed
+
+- `vectimus status` reports a tool as configured only when a Vectimus hook is present. Projects with third-party hooks but no Vectimus hook correctly show as not configured.
+
 ## [0.20.0] - 2026-03-28
 
 ### Added
